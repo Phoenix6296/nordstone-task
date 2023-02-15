@@ -4,4 +4,7 @@
   align-items: center;
 }
 
-.app {}
+.app {
+  margin: 0;
+  padding: 0;
+}

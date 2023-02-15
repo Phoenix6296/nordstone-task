@@ -1,0 +1,35 @@
+.ss {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: white;
+}
+
+.ss_img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: 500px;
+    height: 500px;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    animation: fade-out 1s ease-in-out forwards;
+}
+
+.show {
+    opacity: 1;
+}
+
+.hide {
+    opacity: 0;
+}
+
+@keyframes fade-out {
+    100% {
+        opacity: 0;
+    }
+}
