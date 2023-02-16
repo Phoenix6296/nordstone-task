@@ -53,23 +53,14 @@ const Signup = () => {
     }
 
     //Logic and Validation for Authentication and Signup
-    const submitHandler = (e) => {
-        e.preventDefault();
+    const submitHandler = () => {
+        // e.preventDefault();
         console.log('Submitted');
         createUserWithEmailAndPassword(auth, user.email, user.password).then(async (res) => {
             console.log(res);
-            await updateProfile(auth.currentUser, {
-                displayName: user.name
-            }).then(() => {
-                console.log('Profile Updated');
-            }).catch(err => {
-                console.log(err);
-            })
+            await updateProfile(auth.currentUser, { displayName: user.name })
             navigate('/');
-        }).catch(err => {
-            setError(err.message);
-            console.log(err);
-        })
+        }).catch(err => { setError(err.message); })
     }
     return (
         <div className={`${styles.container__wrapper} ${styles.center}`}>

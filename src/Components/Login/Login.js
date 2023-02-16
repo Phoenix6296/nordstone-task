@@ -28,16 +28,11 @@ const Login = () => {
   }, [navigate]);
 
   //Logic for Submit Form
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    // console.log('Submitted');
+  const submitHandler = async () => {
     await signInWithEmailAndPassword(auth, user.email, user.password).then((res) => {
       console.log(res);
       navigate('/');
-    }).catch(err => {
-      setError(err.message);
-      // console.log(err);
-    })
+    }).catch(err => { setError(err.message); })
   }
 
   //Logic for Email and Password
