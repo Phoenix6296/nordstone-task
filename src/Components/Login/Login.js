@@ -1,37 +1,60 @@
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { Button, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput } from '@mui/material'
 import styles from './Login.module.css'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { auth } from '../../firebase'
+
 const Login = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [user, setUser] = useState({ email: '', password: '' })
+  const [userValidation, setUserValidation] = useState({ email: false, password: false })
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [checkEmail, setCheckEmail] = useState(false);
-  const [checkPassword, setCheckPassword] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    setTimeout(() => {
+      setError('');
+    }, 3000)
+  }, [error])
 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) { navigate('/'); }
+    });
+    return unsubscribe;
+  }, [navigate]);
+
+  //Logic for Submit Form
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    // console.log('Submitted');
+    await signInWithEmailAndPassword(auth, user.email, user.password).then((res) => {
+      console.log(res);
+      navigate('/');
+    }).catch(err => {
+      setError(err.message);
+      // console.log(err);
+    })
+  }
+
+  //Logic for Email and Password
+  const handleEmail = (e) => {
+    setUser({ ...user, email: e.target.value })
+    e.target.value.includes('@') ? setUserValidation({ ...userValidation, email: true }) : setUserValidation({ ...userValidation, email: false });
+  }
+  const handlePassword = (e) => {
+    setUser({ ...user, password: e.target.value })
+    e.target.value.length >= 8 && e.target.value.match(/[A-Z]/) && e.target.value.match(/[a-z]/) && e.target.value.match(/[0-9]/) && e.target.value.match(/[!@#$%^&*]/) ? setUserValidation({ ...userValidation, password: true }) : setUserValidation({ ...userValidation, password: false });
+  }
   //Visibility Handler of Password
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
   };
 
-  //Logic for Email and Password
-  const handleEmail = (e) => {
-    setEmail(e.target.value);
-    e.target.value.includes('@') ? setCheckEmail(true) : setCheckEmail(false);
-  }
-  const handlePassword = (e) => {
-    setPassword(e.target.value);
-    e.target.value.length >= 8 && e.target.value.match(/[A-Z]/) && e.target.value.match(/[a-z]/) && e.target.value.match(/[0-9]/) && e.target.value.match(/[!@#$%^&*]/) ? setCheckPassword(true) : setCheckPassword(false);
-  }
-  //Logic for Submit Form
-  const submitHandler = (e) => {
-    e.preventDefault();
-    console.log('Submitted');
-  }
 
 
   return (
@@ -43,7 +66,8 @@ const Login = () => {
             <InputLabel htmlFor="email">Email</InputLabel>
             <OutlinedInput type='email' id="email" label="Email"
               onChange={handleEmail}
-              value={email} />
+              value={user.email}
+            />
           </FormControl>
           <FormControl variant="outlined">
             <InputLabel htmlFor="password">Password</InputLabel>
@@ -64,13 +88,16 @@ const Login = () => {
               }
               label="Password"
               onChange={handlePassword}
-              value={password}
+              value={user.password}
             />
           </FormControl>
           <div className="forgot_password">
             <Link to="/forgot_password" className={styles.link}>Forgot Password?</Link>
           </div>
-          <Button variant="contained" onClick={submitHandler} disabled={!(checkEmail && checkPassword)}>Login</Button>
+          <p className={styles.error_message}>{error}</p>
+          <Button variant="contained" onClick={submitHandler}
+            disabled={!userValidation.email || !userValidation.password}
+          >Login</Button>
         </form>
         <Link to="/signup" className={styles.link}>New User? Signup</Link>
       </div>

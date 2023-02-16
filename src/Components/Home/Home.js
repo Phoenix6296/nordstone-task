@@ -1,8 +1,24 @@
+import { useEffect } from 'react'
 import styles from './Home.module.css'
-const Home = () => {
+import { auth } from '../../firebase'
+import { useNavigate } from 'react-router-dom'
+
+const Home = (props) => {
+    const navigate = useNavigate();
+    const onLogoutHandler = () => {
+        auth.signOut();
+        navigate('/signup');
+    }
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            if (!user) { navigate('/login'); }
+        });
+        return unsubscribe;
+    }, [navigate]);
     return (
         <div className={styles.home}>
-            Home
+            <p>{`Home ${props.user}`}</p>
+            <button onClick={onLogoutHandler}>Logout</button>
         </div>
     )
 }
