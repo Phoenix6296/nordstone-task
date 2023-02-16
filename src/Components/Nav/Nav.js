@@ -48,7 +48,7 @@ const Nav = () => {
                 <Container maxWidth="xl">
                     <Toolbar disableGutters>
                         <Typography
-                            variant="h6" noWrap component="a" href="/" sx={{
+                            variant="h6" noWrap component="a" href="/login" sx={{
                                 mr: 2, display: { xs: 'none', md: 'flex' }, fontFamily: 'Poppins', fontWeight: 700, color: 'inherit', textDecoration: 'none'
                             }}
                         >
