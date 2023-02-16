@@ -28,16 +28,11 @@ const Login = () => {
   }, [navigate]);
 
   //Logic for Submit Form
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    // console.log('Submitted');
+  const submitHandler = async () => {
     await signInWithEmailAndPassword(auth, user.email, user.password).then((res) => {
       console.log(res);
       navigate('/');
-    }).catch(err => {
-      setError(err.message);
-      // console.log(err);
-    })
+    }).catch(err => { setError(err.message); })
   }
 
   //Logic for Email and Password
@@ -92,7 +87,7 @@ const Login = () => {
             />
           </FormControl>
           <div className="forgot_password">
-            <Link to="/forgot_password" className={styles.link}>Forgot Password?</Link>
+            <Link to="/login/forgot_password" className={styles.link}>Forgot Password?</Link>
           </div>
           <p className={styles.error_message}>{error}</p>
           <Button variant="contained" onClick={submitHandler}
