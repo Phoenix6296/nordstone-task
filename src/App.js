@@ -5,6 +5,7 @@ import { Route, Routes } from 'react-router-dom';
 import Login from './Components/Login/Login';
 import Home from './Components/Home/Home';
 import { auth } from './firebase';
+import ForgotPassword from './Components/ForgotPassword/ForgotPassword';
 
 const App = () => {
   const [userName, setUserName] = useState(null);
@@ -22,6 +23,7 @@ const App = () => {
         <Route path="/" element={<Home user={userName} />} exact />
         <Route path="/signup" element={<Signup />} exact />
         <Route path="/login" element={<Login />} exact />
+        <Route path="/login/forgot_password" element={<ForgotPassword />} exact />
       </Routes>
     </div>
   );

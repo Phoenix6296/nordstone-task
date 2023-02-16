@@ -87,7 +87,7 @@ const Login = () => {
             />
           </FormControl>
           <div className="forgot_password">
-            <Link to="/forgot_password" className={styles.link}>Forgot Password?</Link>
+            <Link to="/login/forgot_password" className={styles.link}>Forgot Password?</Link>
           </div>
           <p className={styles.error_message}>{error}</p>
           <Button variant="contained" onClick={submitHandler}
