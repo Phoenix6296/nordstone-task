@@ -97,8 +97,14 @@ const Signup = () => {
                                         {showPassword ? <VisibilityOff /> : <Visibility />}
                                     </IconButton>
                                     <IconButton edge="end">
-                                        <Tooltip title="At least 8 characters including at least one uppercase letter, one lowercase letter, one number, and one special character">
-                                            <InfoIcon sx={{ mb: 1 }} />
+                                        <Tooltip title="At least 8 characters including at least one uppercase letter, one lowercase letter, one number, and one special character"
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                            }}
+                                        >
+                                            <InfoIcon fontSize="small" />
                                         </Tooltip>
                                     </IconButton>
                                 </InputAdornment>
