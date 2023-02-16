@@ -6,10 +6,6 @@ import Nav from '../Nav/Nav'
 
 const Home = (props) => {
     const navigate = useNavigate();
-    const onLogoutHandler = () => {
-        auth.signOut();
-        navigate('/signup');
-    }
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (!user) { navigate('/login'); }
@@ -20,7 +16,6 @@ const Home = (props) => {
         <div className={styles.home}>
             <Nav />
             <p>{`Home ${props.user}`}</p>
-            <button onClick={onLogoutHandler}>Logout</button>
         </div>
     )
 }
