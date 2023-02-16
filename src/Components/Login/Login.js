@@ -7,7 +7,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../../firebase'
 
-const Login = () => {
+const Login = (props) => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState({ email: '', password: '' })
@@ -28,9 +28,10 @@ const Login = () => {
   }, [navigate]);
 
   //Logic for Submit Form
-  const submitHandler = async () => {
-    await signInWithEmailAndPassword(auth, user.email, user.password).then((res) => {
+  const submitHandler = () => {
+    signInWithEmailAndPassword(auth, user.email, user.password).then((res) => {
       console.log(res);
+      props.fetch(res);
       navigate('/');
     }).catch(err => { setError(err.message); })
   }

@@ -12,6 +12,7 @@ const Home = (props) => {
         });
         return unsubscribe;
     }, [navigate]);
+
     return (
         <div className={styles.home}>
             <Nav />
