@@ -17,7 +17,7 @@ import { auth } from '../../firebase'
 import { useNavigate } from 'react-router-dom'
 import { Alert } from '@mui/material';
 
-const pages = ['Tab1', 'Tab2', 'Tab3', 'Tab4'];
+// const pages = ['Tab1', 'Tab2', 'Tab3', 'Tab4'];
 
 const Nav = () => {
     const navigate = useNavigate();
@@ -76,11 +76,10 @@ const Nav = () => {
                                 onClose={handleCloseNavMenu}
                                 sx={{ display: { xs: 'block', md: 'none' }, }}
                             >
-                                {pages.map((page) => (
-                                    <MenuItem key={page} onClick={handleCloseNavMenu}>
-                                        <Typography textAlign="center">{page}</Typography>
-                                    </MenuItem>
-                                ))}
+                                <MenuItem key='tab1' onClick={handleClick}><Typography textAlign="center">Tab1</Typography></MenuItem>
+                                <MenuItem key='tab2'><Typography textAlign="center">Tab2</Typography></MenuItem>
+                                <MenuItem key='tab3'><Typography textAlign="center">Tab3</Typography></MenuItem>
+                                <MenuItem key='tab4'><Typography textAlign="center">Tab4</Typography></MenuItem>
                             </Menu>
                         </Box>
                         <Typography
@@ -102,15 +101,10 @@ const Nav = () => {
                             Nordstone
                         </Typography>
                         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                            {pages.map((page, index) => (
-                                <Button
-                                    key={page}
-                                    onClick={index === 0 ? handleClick : handleCloseNavMenu}
-                                    sx={{ my: 2, color: 'black', }}
-                                >
-                                    {page}
-                                </Button>
-                            ))}
+                            <Button key='tab1' sx={{ my: 2, color: 'black', }} onClick={handleClick}>Tab1</Button>
+                            <Button key='tab2' sx={{ my: 2, color: 'black', }} onClick={() => navigate('/login/tab2')}>Tab2</Button>
+                            <Button key='tab3' sx={{ my: 2, color: 'black', }} onClick={() => navigate('/login/tab3')}>Tab3</Button>
+                            <Button key='tab4' sx={{ my: 2, color: 'black', }} onClick={() => navigate('/login/tab4')}>Tab4</Button>
                         </Box>
 
                         <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center' }}>
@@ -123,7 +117,7 @@ const Nav = () => {
                             </Typography>
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                                    <Avatar alt="Profile_Pic" src={auth.currentUser.photoURL} />
                                 </IconButton>
                             </Tooltip>
                             <Menu
@@ -138,10 +132,7 @@ const Nav = () => {
                             >
                                 <MenuItem key='logout' onClick={handleCloseUserMenu}>
                                     <Typography textAlign="center"
-                                        onClick={() => {
-                                            auth.signOut();
-                                            navigate('/login');
-                                        }}
+                                        onClick={() => { auth.signOut(); navigate('/login'); }}
                                     >Logout</Typography>
                                 </MenuItem>
                             </Menu>
