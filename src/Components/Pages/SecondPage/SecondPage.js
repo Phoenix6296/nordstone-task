@@ -1,12 +1,13 @@
-import Nav from '../../Nav/Nav'
-import { useState, useEffect } from 'react'
-import styles from './SecondPage.module.css'
+import Nav from '../../Nav/Nav';
+import { useState, useEffect } from 'react';
+import styles from './SecondPage.module.css';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import { Button } from '@mui/material';
-import { auth, storage } from '../../../firebase'
-import { useNavigate } from 'react-router-dom'
-import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
-import { v4 } from "uuid";
+import { auth, storage } from '../../../firebase';
+import { useNavigate } from 'react-router-dom';
+import { ref, uploadBytes, getDownloadURL, listAll, deleteObject } from 'firebase/storage';
+import { v4 } from 'uuid';
+import SyncLoader from "react-spinners/SyncLoader";
 
 const SecondPage = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -17,31 +18,56 @@ const SecondPage = () => {
     });
     const [file, setFile] = useState(null);
     const [fileName, setFileName] = useState('Upload an image');
+    const [selectedImage, setSelectedImage] = useState(null);
+
     const onUploadHandler = (e) => {
         setFile(e.target.files[0]);
         setFileName(e.target.files[0].name);
         if (e.target.files[0].name.length > 20)
             setFileName(e.target.files[0].name.substring(0, 30) + '...');
-    }
+    };
+
     const uploadFile = () => {
         if (file == null || !auth.currentUser) return;
+
         const userId = auth.currentUser.uid;
-        const imageRef = ref(storage, `images/${userId}/${file.name + v4()}`);
-        uploadBytes(imageRef, file).then((snapshot) => {
+        const imageName = selectedImage
+            ? selectedImage.substring(selectedImage.lastIndexOf('/') + 1)
+            : file.name + v4();
+        const imageRef = ref(storage, `images/${userId}/${imageName}`);
+        const uploadTask = uploadBytes(imageRef, file);
+
+        if (selectedImage) {
+            const selectedImageRef = ref(storage, selectedImage);
+            deleteObject(selectedImageRef);
+        }
+
+        uploadTask.then((snapshot) => {
             getDownloadURL(snapshot.ref).then((url) => {
-                setState(prevState => ({
-                    ...prevState,
-                    imageUrls: [...prevState.imageUrls, url],
-                }));
+                if (selectedImage) {
+                    setState((prevState) => ({
+                        ...prevState,
+                        imageUrls: prevState.imageUrls.map((imageUrl) =>
+                            imageUrl === selectedImage ? url : imageUrl
+                        ),
+                    }));
+                    setSelectedImage(null);
+                } else {
+                    setState((prevState) => ({
+                        ...prevState,
+                        imageUrls: [...prevState.imageUrls, url],
+                    }));
+                }
             });
         });
         setFile(null);
         setFileName('Upload an image');
-    }
+    };
+
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
             const isAuthenticated = user != null;
-            setState(prevState => ({
+            setState((prevState) => ({
                 ...prevState,
                 isAuthenticated,
             }));
@@ -51,68 +77,106 @@ const SecondPage = () => {
         });
         return unsubscribe;
     }, [navigate]);
+
     useEffect(() => {
         if (!state.isAuthenticated) return;
         const userId = auth.currentUser.uid;
         const imagesListRef = ref(storage, `images/${userId}/`);
-        listAll(imagesListRef)
-            .then((response) => {
-                const urls = [];
-                response.items.forEach((item) => {
-                    getDownloadURL(item).then((url) => {
-                        urls.push(url);
-                    });
+        listAll(imagesListRef).then((response) => {
+            const urls = [];
+            response.items.forEach((item) => {
+                getDownloadURL(item).then((url) => {
+                    urls.push(url);
                 });
-                setState((prevState) => ({
-                    ...prevState,
-                    imageUrls: urls,
-                }));
-                setIsLoading(false);
-            })
-            .catch((error) => {
-                console.error("Error getting images: ", error);
-                setIsLoading(false);
             });
+            setState((prevState) => ({
+                ...prevState,
+                imageUrls: urls,
+            }));
+            setIsLoading(false);
+        });
     }, [state.isAuthenticated]);
 
+    if (isLoading)
+        return (
+            <div className={styles.loader}>
+                <SyncLoader
+                    loading={isLoading}
+                    size={30}
+                    aria-label="Loading Spinner"
+                    data-testid="loader"
+                />
+            </div>
+        );
+
     return (
-        <div className={styles.secondpg}>
-            {state.isAuthenticated && <Nav />}
-            <div className={`${styles.container} ${styles.center}`}>
-                <div className={`${styles.upload}`}>
-                    <div className={`${styles.button} ${styles.center}`}>
-                        <FileUploadOutlinedIcon />
-                        <label htmlFor="upload">Upload File</label>
-                    </div>
-                    <input id="upload" type="file" onChange={onUploadHandler} style={{ display: 'none' }} />
-                    <div className={`${styles.filename} ${styles.center}`}>
+        <div className={styles.container}>
+            <Nav />
+            <div className={styles.upload}>
+                <div className={`${styles.upload_icons}`}>
+                    <input type="file" id="uploadImage" accept="image/*" onChange={onUploadHandler} />
+                    <label htmlFor="uploadImage">
+                        <FileUploadOutlinedIcon className={styles.uploadIcon} />
                         {fileName}
-                    </div>
-                    <Button
-                        className={styles.uploadButton}
-                        onClick={uploadFile}
-                        variant="contained"
-                        size="medium"
-                        disabled={file == null}
-                    >
-                        Upload
-                    </Button>
+                    </label>
                 </div>
-                <div className={`${styles.center}`}>
-                    {isLoading ? (
-                        <div>Loading...</div>
-                    ) : state.imageUrls.length > 0 ? (
-                        <div className={`${styles.gallery}`}>
-                            {state.imageUrls.map((url) => (
-                                <img key={url} src={url} alt="certificate" />
-                            ))}
+                <Button variant="contained" color="primary" onClick={uploadFile}>
+                    Upload
+                </Button>
+            </div>
+            <div className={styles.content}>
+                <div className={`${styles.images} ${styles.center}`}>
+                    {state.imageUrls.map((imageUrl, index) => (
+                        <div key={index} className={`${styles.image_container} ${styles.center}`}>
+                            <img src={imageUrl} alt="gallery" />
+                            <div className={`${styles.overlay} ${styles.center}`}>
+                                <label htmlFor="replaceImage">Replace</label>
+                                <input
+                                    type="file"
+                                    id="replaceImage"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        setSelectedImage(imageUrl);
+                                        setFile(e.target.files[0]);
+                                        setFileName(e.target.files[0].name);
+                                        if (e.target.files[0].name.length > 20)
+                                            setFileName(e.target.files[0].name.substring(0, 30) + '...');
+                                    }}
+                                />
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    color="secondary"
+                                    onClick={() => {
+                                        const userId = auth.currentUser.uid;
+                                        const imageName = selectedImage.substring(selectedImage.lastIndexOf('/') + 1);
+                                        const imageRef = ref(storage, `images/${userId}/${imageName}`);
+                                        const uploadTask = uploadBytes(imageRef, file);
+                                        if (selectedImage) {
+                                            const selectedImageRef = ref(storage, selectedImage);
+                                            deleteObject(selectedImageRef);
+                                        }
+                                        uploadTask.then((snapshot) => {
+                                            getDownloadURL(snapshot.ref).then((url) => {
+                                                setState(prevState => ({
+                                                    ...prevState,
+                                                    imageUrls: prevState.imageUrls.map((imageUrl) => imageUrl === selectedImage ? url : imageUrl),
+                                                }));
+                                                setSelectedImage(null);
+                                                setFile(null);
+                                                setFileName('Upload an image');
+                                            });
+                                        });
+                                    }}
+                                >
+                                    Save
+                                </Button>
+                            </div>
                         </div>
-                    ) : (
-                        <div className={styles.notify}>Click on the tab again to fetch image if exists!</div>
-                    )}
+                    ))}
                 </div>
-            </div >
-        </div >
+            </div>
+        </div>
     );
 }
 

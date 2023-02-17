@@ -7,8 +7,10 @@ import { Button, TextField } from '@mui/material'
 import { collection, addDoc, onSnapshot, query, where } from "firebase/firestore";
 import { db } from '../../../firebase'
 import { v4 } from 'uuid'
+import SyncLoader from "react-spinners/SyncLoader";
 
 const ThirdPage = () => {
+    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
     const [text, setText] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -45,9 +47,21 @@ const ThirdPage = () => {
                 navigate('/login');
             }
         });
+        setIsLoading(false);
         return unsubscribe;
     }, [navigate]);
 
+    if (isLoading)
+        return (
+            <div className={styles.loader}>
+                <SyncLoader
+                    loading={isLoading}
+                    size={30}
+                    aria-label="Loading Spinner"
+                    data-testid="loader"
+                />
+            </div>
+        );
     return (
         <>
             {isAuthenticated && <Nav />}
