@@ -108,7 +108,7 @@ const SecondPage = () => {
                             ))}
                         </div>
                     ) : (
-                        <div>Click on the tab again to fetch image if exists!</div>
+                        <div className={styles.notify}>Click on the tab again to fetch image if exists!</div>
                     )}
                 </div>
             </div >
