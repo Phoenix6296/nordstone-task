@@ -14,7 +14,6 @@ const SecondPage = () => {
         isAuthenticated: false,
         imageUrls: [],
     });
-    const imagesListRef = ref(storage, "images/");
     const [file, setFile] = useState(null);
     const [fileName, setFileName] = useState('Upload an image');
     const onUploadHandler = (e) => {
