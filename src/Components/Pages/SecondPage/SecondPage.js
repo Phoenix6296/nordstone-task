@@ -9,6 +9,7 @@ import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 import { v4 } from "uuid";
 
 const SecondPage = () => {
+    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
     const [state, setState] = useState({
         isAuthenticated: false,
@@ -54,18 +55,24 @@ const SecondPage = () => {
         if (!state.isAuthenticated) return;
         const userId = auth.currentUser.uid;
         const imagesListRef = ref(storage, `images/${userId}/`);
-        listAll(imagesListRef).then((response) => {
-            const urls = [];
-            response.items.forEach((item) => {
-                getDownloadURL(item).then((url) => {
-                    urls.push(url);
+        listAll(imagesListRef)
+            .then((response) => {
+                const urls = [];
+                response.items.forEach((item) => {
+                    getDownloadURL(item).then((url) => {
+                        urls.push(url);
+                    });
                 });
+                setState((prevState) => ({
+                    ...prevState,
+                    imageUrls: urls,
+                }));
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                console.error("Error getting images: ", error);
+                setIsLoading(false);
             });
-            setState(prevState => ({
-                ...prevState,
-                imageUrls: urls,
-            }));
-        });
     }, [state.isAuthenticated]);
 
     return (
@@ -92,13 +99,17 @@ const SecondPage = () => {
                     </Button>
                 </div>
                 <div className={`${styles.center}`}>
-                    {state.imageUrls.length > 0 &&
+                    {isLoading ? (
+                        <div>Loading...</div>
+                    ) : state.imageUrls.length > 0 ? (
                         <div className={`${styles.gallery}`}>
-                            {state.imageUrls.map(url =>
+                            {state.imageUrls.map((url) => (
                                 <img key={url} src={url} alt="certificate" />
-                            )}
+                            ))}
                         </div>
-                    }
+                    ) : (
+                        <div className={styles.notify}>Click on the tab again to fetch image if exists!</div>
+                    )}
                 </div>
             </div >
         </div >
