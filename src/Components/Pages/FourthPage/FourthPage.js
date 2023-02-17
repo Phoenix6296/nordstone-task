@@ -12,6 +12,7 @@ const currencies = [
 ];
 
 const FourthPage = () => {
+    const [displayError, setDisplayError] = useState(false)
     const [state, setState] = useState({
         value1: '',
         value2: '',
@@ -20,10 +21,17 @@ const FourthPage = () => {
     const [result, setResult] = useState('')
     const calculate = () => {
         const API = fetch(`https://newton.now.sh/api/v2/simplify/${state.value1}${state.operator}${state.value2}`).then(res => res.json()).then(data => setResult(data.result))
-        console.log(state);
+        if (state.operator === '+') {
+            setDisplayError(true)
+        }
     }
     const navigate = useNavigate();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    useEffect(() => {
+        setTimeout(() => {
+            setDisplayError(false)
+        }, 5000);
+    }, [displayError])
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             user ? setIsAuthenticated(true) : navigate('/login');
@@ -54,7 +62,8 @@ const FourthPage = () => {
             <Button onClick={calculate} variant="outlined"
                 disabled={state.value1 === '' || state.value2 === '' || state.operator === ''}
             >Calculate</Button>
-            {result && <h1>{result}</h1>}
+            {result && <h1 className={styles.result}>{result}</h1>}
+            {displayError && <p className={styles.error}>Note: Add functionality is working as multiplication due to API issue.</p>}
         </div>
     )
 }

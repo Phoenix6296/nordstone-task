@@ -12,11 +12,14 @@
     height: 80vh;
 }
 
-.cal {
-}
+.cal {}
 
-h1 {
+.result {
     box-shadow: 1px 1px 5px 1px gray;
     padding: 0.5rem;
     border-radius: 5px;
+}
+
+.error {
+    color: red;
 }
