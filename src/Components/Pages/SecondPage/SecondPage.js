@@ -80,7 +80,6 @@ const SecondPage = () => {
 
     useEffect(() => {
         if (!state.isAuthenticated) return;
-
         const userId = auth.currentUser.uid;
         const imagesListRef = ref(storage, `images/${userId}/`);
         listAll(imagesListRef).then((response) => {

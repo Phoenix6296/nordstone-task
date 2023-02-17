@@ -4,6 +4,7 @@ import Nav from '../../Nav/Nav'
 import styles from './FourthPage.module.css'
 import { auth } from '../../../firebase'
 import { useNavigate } from 'react-router-dom'
+import SyncLoader from "react-spinners/SyncLoader";
 
 const currencies = [
     { value: 'ADD', label: '+' },
@@ -12,6 +13,7 @@ const currencies = [
 ];
 
 const FourthPage = () => {
+    const [isLoading, setIsLoading] = useState(true);
     const [displayError, setDisplayError] = useState(false)
     const [state, setState] = useState({
         value1: '',
@@ -19,8 +21,8 @@ const FourthPage = () => {
         operator: ''
     })
     const [result, setResult] = useState('')
-    const calculate = () => {
-        const API = fetch(`https://newton.now.sh/api/v2/simplify/${state.value1}${state.operator}${state.value2}`).then(res => res.json()).then(data => setResult(data.result))
+    const calculate = async () => {
+        await fetch(`https://newton.now.sh/api/v2/simplify/${state.value1}${state.operator}${state.value2}`).then(res => res.json()).then(data => setResult(data.result))
         if (state.operator === '+') {
             setDisplayError(true)
         }
@@ -36,8 +38,22 @@ const FourthPage = () => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             user ? setIsAuthenticated(true) : navigate('/login');
         });
+        setIsLoading(false);
         return unsubscribe;
     }, [navigate]);
+
+    if (isLoading)
+        return (
+            <div className={styles.loader}>
+                <SyncLoader
+                    loading={isLoading}
+                    size={30}
+                    aria-label="Loading Spinner"
+                    data-testid="loader"
+                />
+            </div>
+        );
+
     return (
         <div className={`${styles.fourthpg} ${styles.center}`}>
             {isAuthenticated && <Nav />}
