@@ -16,7 +16,7 @@ const SecondPage = () => {
     });
     const imagesListRef = ref(storage, "images/");
     const [file, setFile] = useState(null);
-    const [fileName, setFileName] = useState('Upload a certificate');
+    const [fileName, setFileName] = useState('Upload an image');
     const onUploadHandler = (e) => {
         setFile(e.target.files[0]);
         setFileName(e.target.files[0].name);

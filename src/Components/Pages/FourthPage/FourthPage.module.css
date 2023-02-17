@@ -1,0 +1,25 @@
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fourthpg {
+    margin-top: 5rem;
+    padding: 0 12%;
+    flex-direction: column;
+    gap: 2rem;
+    height: 80vh;
+}
+
+.cal {}
+
+.result {
+    box-shadow: 1px 1px 5px 1px gray;
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+.error {
+    color: red;
+}
