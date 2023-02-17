@@ -77,9 +77,9 @@ const Nav = () => {
                                 sx={{ display: { xs: 'block', md: 'none' }, }}
                             >
                                 <MenuItem key='tab1' onClick={handleClick}><Typography textAlign="center">Tab1</Typography></MenuItem>
-                                <MenuItem key='tab2'><Typography textAlign="center">Tab2</Typography></MenuItem>
-                                <MenuItem key='tab3'><Typography textAlign="center">Tab3</Typography></MenuItem>
-                                <MenuItem key='tab4'><Typography textAlign="center">Tab4</Typography></MenuItem>
+                                <MenuItem key='tab2' onClick={() => navigate('/login/tab2')}><Typography textAlign="center">Tab2</Typography></MenuItem>
+                                <MenuItem key='tab3' onClick={() => navigate('/login/tab3')}><Typography textAlign="center">Tab3</Typography></MenuItem>
+                                <MenuItem key='tab4' onClick={() => navigate('/login/tab4')}><Typography textAlign="center">Tab4</Typography></MenuItem>
                             </Menu>
                         </Box>
                         <Typography
