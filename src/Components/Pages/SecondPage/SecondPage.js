@@ -7,6 +7,7 @@ import { auth, storage } from '../../../firebase';
 import { useNavigate } from 'react-router-dom';
 import { ref, uploadBytes, getDownloadURL, listAll, deleteObject } from 'firebase/storage';
 import { v4 } from 'uuid';
+import SyncLoader from "react-spinners/SyncLoader";
 
 const SecondPage = () => {
     const [isLoading, setIsLoading] = useState(true);
@@ -18,24 +19,29 @@ const SecondPage = () => {
     const [file, setFile] = useState(null);
     const [fileName, setFileName] = useState('Upload an image');
     const [selectedImage, setSelectedImage] = useState(null);
+
     const onUploadHandler = (e) => {
         setFile(e.target.files[0]);
         setFileName(e.target.files[0].name);
         if (e.target.files[0].name.length > 20)
             setFileName(e.target.files[0].name.substring(0, 30) + '...');
     };
+
     const uploadFile = () => {
         if (file == null || !auth.currentUser) return;
+
         const userId = auth.currentUser.uid;
         const imageName = selectedImage
             ? selectedImage.substring(selectedImage.lastIndexOf('/') + 1)
             : file.name + v4();
         const imageRef = ref(storage, `images/${userId}/${imageName}`);
         const uploadTask = uploadBytes(imageRef, file);
+
         if (selectedImage) {
             const selectedImageRef = ref(storage, selectedImage);
             deleteObject(selectedImageRef);
         }
+
         uploadTask.then((snapshot) => {
             getDownloadURL(snapshot.ref).then((url) => {
                 if (selectedImage) {
@@ -57,6 +63,7 @@ const SecondPage = () => {
         setFile(null);
         setFileName('Upload an image');
     };
+
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             const isAuthenticated = user != null;
@@ -70,8 +77,10 @@ const SecondPage = () => {
         });
         return unsubscribe;
     }, [navigate]);
+
     useEffect(() => {
         if (!state.isAuthenticated) return;
+
         const userId = auth.currentUser.uid;
         const imagesListRef = ref(storage, `images/${userId}/`);
         listAll(imagesListRef).then((response) => {
@@ -89,7 +98,17 @@ const SecondPage = () => {
         });
     }, [state.isAuthenticated]);
 
-    if (isLoading) return <div>Loading...</div>;
+    if (isLoading)
+        return (
+            <div className={styles.loader}>
+                <SyncLoader
+                    loading={isLoading}
+                    size={30}
+                    aria-label="Loading Spinner"
+                    data-testid="loader"
+                />
+            </div>
+        );
 
     return (
         <div className={styles.container}>
